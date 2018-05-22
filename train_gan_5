@@ -1,0 +1,17 @@
+#!/bin/bash
+
+#SBATCH --mem=4G
+#SBATCH -t 0-0:15
+#SBATCH --qos short
+#--#SBATCH --gres=gpu:pascal:1
+#SBATCH --gres=gpu:maxwell:1
+
+opts="--mem=4g -t 0-0:15 --qos long --gres=gpu:maxwell:1"
+
+srun $opts --nodes 1 ./train_gan runs/run0 &
+srun $opts --nodes 1 ./train_gan runs/run1 &
+#srun $opts --nodes 1 ./train_gan runs/run2 &
+#srun $opts --nodes 1 ./train_gan runs/run3 &
+#srun $opts --nodes 1 ./train_gan runs/run4 &
+
+wait

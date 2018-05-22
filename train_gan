@@ -1,0 +1,26 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [ -d /usr/local/cuda-9.0/ ]; then
+	. $DIR/environment/gpu/bin/activate
+	echo "Using GPU"
+else
+	. $DIR/environment/cpu/bin/activate
+	echo "Using CPU"
+fi
+
+ulimit -a
+
+pushd "${DIR}/models/research"
+trap popd EXIT
+
+export PYTHONPATH=$(pwd):$(pwd)/slim
+export PATH=/usr/local/cuda-9.0/bin:$PATH
+export LD_LIBRARY_PATH=/home/nfs/mmaton/lib/cuda/lib64:/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH
+
+dest="${DIR}/${1:-runs/run${SLURM_LOCALID}}"
+
+python3 domain_adaptation/pixel_domain_adaptation/pixelda_train.py --dataset_dir "${DIR}/data" --source_dataset mnist --target_dataset mnist_artificial --checkpoint_dir "$dest" --eval_dir "$dest" --train_log_dir "$dest"
+
+cp -r /tmp/pixelda $DIR

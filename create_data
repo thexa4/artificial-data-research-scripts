@@ -1,0 +1,25 @@
+#!/bin/bash
+#SBATCH -N 1
+#SBATCH -n 1
+#SBATCH --qos short
+#SBATCH --mem 4
+#SBATCH -t 0-0:10
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [ -f /usr/local/cuda-9.0/ ]; then
+	. $DIR/environment/gpu/bin/activate
+else
+	. $DIR/environment/cpu/bin/activate
+fi
+
+pushd "${DIR}/models/research"
+trap popd EXIT
+
+export PYTHONPATH=$(pwd):$(pwd)/slim
+export PATH=/usr/local/cuda-9.0/bin:$PATH
+export LD_LIBRARY_PATH=/home/nfs/mmaton/lib/cuda/lib64:/usr/local/cuda-9.0/lib64:$LD_LIBRARY_PATH
+
+python3 slim/download_and_convert_data.py --dataset_dir "${DIR}/data" --dataset_name=mnist
+python3 domain_adaptation/datasets/download_and_convert_mnist_m.py --dataset_dir "${DIR}/data"
+python3 domain_adaptation/datasets/convert_mnist_artificial.py --dataset_dir "${DIR}/data"
