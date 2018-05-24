@@ -1,0 +1,60 @@
+#!/bin/bash
+
+set -e
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+mnist_font_train="${DIR}/data/mnist_artificial/mnist_artificial_train_labels.txt"
+mnist_font_test="${DIR}/data/mnist_artificial/mnist_artificial_test_labels.txt"
+
+ratio=${1:?No ratio set, use one of {1..9\}}
+mnist_count=$(( ratio * 5500 ))
+font_count=$(( ( 10 - ratio ) * 5500 ))
+
+echo "${mnist_count} images from MNIST, ${font_count} images from FONT"
+
+
+# TODO: python env
+
+set -u
+
+# Source data generation
+run_dir="/scratch/mmaton/experiment/0.${ratio}"
+
+if [ ! -d "${run_dir}/source/font" ]; then
+	[ -d "${run_dir}/source/font_tmp" ] && rm -r "${run_dir}/source/font_tmp"
+	mkdir -p "${run_dir}/source/font_tmp"
+	
+	# LIMITATION: unbalanced classes?
+	sort -R "$mnist_font_train" | head -n $font_count > "${run_dir}/source/font_tmp/mnist_artificial_train_labels.txt"
+	echo "MNIST distribution:"
+	cut -d' ' -f2 "${run_dir}/source/font_tmp/mnist_artificial_train_labels.txt" | sort | uniq -c
+
+	cp "$mnist_font_test" "${run_dir}/source/font_tmp/mnist_artificial_test_labels.txt" 
+ 
+
+	cp -r "${DIR}/data/mnist_artificial/mnist_artificial_train" "${run_dir}/source/font_tmp"
+	cp -r "${DIR}/data/mnist_artificial/mnist_artificial_test" "${run_dir}/source/font_tmp"
+
+	mv "${run_dir}/source/font_tmp" "${run_dir}/source/font"
+fi
+
+if [ ! -d "${run_dir}/source/mnist" ]; then
+	[ -d "${run_dir}/source/mnist_tmp" ] && rm -r "${run_dir}/source/mnist_tmp"
+	mkdir -p "${run_dir}/source/mnist_tmp"
+	
+	cp -r "${DIR}/data/mnist_png/train" "${run_dir}/source/mnist_tmp/mnist_train"
+	cp -r "${DIR}/data/mnist_png/test" "${run_dir}/source/mnist_tmp/mnist_test"
+
+	ls "${run_dir}/source/mnist_tmp/mnist_test" | while read line; do basename "$line"; done | sed -re 's/^.*\.([^.]+)\.png$/\0 \1/g' > "${run_dir}/source/mnist_tmp/mnist_test_labels.txt"
+	
+	ls "${run_dir}/source/mnist_tmp/mnist_train" | while read line; do basename "$line"; done | sed -re 's/^.*\.([^.]+)\.png$/\0 \1/g' | sort -R | head -n $mnist_count> "${run_dir}/source/mnist_tmp/mnist_train_labels.txt"
+	cut -d' ' -f2 "${run_dir}/source/mnist_tmp/mnist_train_labels.txt" | sort | uniq -c
+
+	mv "${run_dir}/source/mnist_tmp" "${run_dir}/source/mnist"
+fi
+
+mkdir -p "${run_dir}/datasets/gan"
+[ ! -h "${run_dir}/datasets/mnist" ] && ln -s ../source/mnist "${run_dir}/datasets/mnist"
+[ ! -h "${run_dir}/datasets/font" ] && ln -s ../source/font "${run_dir}/datasets/font"
+
+

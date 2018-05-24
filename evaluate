@@ -1,0 +1,41 @@
+#!/bin/bash
+
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+if [ -d /usr/local/cuda-9.0/ ]; then
+	. $DIR/environment/gpu/bin/activate
+	echo "Using GPU"
+else
+	. $DIR/environment/cpu/bin/activate
+	echo "Using CPU"
+fi
+
+set -u
+ulimit -a
+
+rm -r /tmp/mnist_model/
+
+scratch=$(mktemp -d)
+
+mkdir "${scratch}/dataset"
+
+rsync -r "${1}" "${scratch}/dataset" 
+
+pushd "${DIR}/models/"
+trap "rm -r $scratch; popd" EXIT
+
+export PYTHONPATH=$(pwd)
+export PATH=/usr/local/cuda-9.0/bin:$PATH
+export LD_LIBRARY_PATH=/home/nfs/mmaton/lib/cuda/lib64:/usr/local/cuda-9.0/lib64
+
+dest="${DIR}/${1:-runs/run${SLURM_LOCALID}}"
+runid=$RANDOM
+while [ -f "${DIR}/${1}/out.${runid}.log" ]; do
+	runid=$RANDOM
+done
+
+python3 research/domain_adaptation/pixel_domain_adaptation/mnist.py --data_dir "${scratch}/dataset" | tee "${DIR}/${1}/out.${runid}.log"
+
+grep ", 'global_step': 24000}" "${DIR}/${1}/out.${runid}.log" | sed -re "s/^.*'loss': ([^,]+),.*\$/\\1/" > "${DIR}/${1}/out.${runid}.loss"
+
