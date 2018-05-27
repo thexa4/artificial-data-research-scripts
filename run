@@ -1,5 +1,5 @@
 #!/bin/bash
 
 #srun --partition=gpu --mem=8G -t 0-1:00 --qos short -N1 -n1 --gres=gpu:1 $@
-srun --mem=8G -t 0-1:00 --qos short -N1 -n1 --gres=gpu:maxwell:1 $@
+srun --mem=8G -t 0-4:00 --qos short -N1 -n1 --gres=gpu:maxwell:1 $@
 #srun -t 0-1:00 --qos long -N1 -n1 $@
