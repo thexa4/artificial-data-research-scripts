@@ -1,0 +1,17 @@
+#!/bin/bash
+
+all="false"
+while ! $all; do
+	all="true"
+	for i in {1..9}; do
+
+		
+		echo $i
+		[ -f /scratch/mmaton/experiment/0.$i/done ] && continue
+
+		all="false"
+
+		./run ./do_experiment $i
+
+	done
+done
