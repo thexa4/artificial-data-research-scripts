@@ -100,7 +100,7 @@ cond_copy "${run_dir}/source/font/mnist_artificial_valid.tfrecord" "${run_dir}/s
 
 mkdir -p ${run_dir}/gan
 
-[ -f "${run_dir}/gan_done" ] || python3 domain_adaptation/pixel_domain_adaptation/pixelda_train.py --hparams 'num_training_examples=300000' --dataset_dir "${run_dir}/source" --source_dataset 'mnist_artificial' --target_dataset 'mnist' --checkpoint_dir "${run_dir}/gan" --eval_dir "${run_dir}/gan" --train_log_dir "${run_dir}/gan"
+[ -f "${run_dir}/gan_done" ] || python3 domain_adaptation/pixel_domain_adaptation/pixelda_train.py --hparams 'num_training_examples=600000' --dataset_dir "${run_dir}/source" --source_dataset 'mnist_artificial' --target_dataset 'mnist' --checkpoint_dir "${run_dir}/gan" --eval_dir "${run_dir}/gan" --train_log_dir "${run_dir}/gan"
 touch "${run_dir}/gan_done"
 
 [ -f "${run_dir}/export_done" ] || (
@@ -136,67 +136,76 @@ touch "${run_dir}/gan_done"
 	find "${run_dir}/datasets/gan/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/mnist+gan/mnist_artificial/mnist_artificial_test" \;
 	find "${run_dir}/datasets/gan/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/mnist+gan/mnist_artificial/mnist_artificial_train" \;
 
-	echo "mnist+font"
-	[ ! -d "${run_dir}/datasets/mnist+font" ] || rm -r "${run_dir}/datasets/mnist+font"
-	mkdir -p "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_test"
-	mkdir -p "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_train"
+#	echo "mnist+font"
+#	[ ! -d "${run_dir}/datasets/mnist+font" ] || rm -r "${run_dir}/datasets/mnist+font"
+#	mkdir -p "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_test"
+#	mkdir -p "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_train"
 	
-	find "${run_dir}/datasets/mnist/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_test" \;
-	find "${run_dir}/datasets/mnist/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_train" \;
-	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_test" \;
-	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_train" \;
+#	find "${run_dir}/datasets/mnist/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_test" \;
+#	find "${run_dir}/datasets/mnist/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_train" \;
+#	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_test" \;
+#	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/mnist+font/mnist_artificial/mnist_artificial_train" \;
 
-	echo "font+gan"
-	[ ! -d "${run_dir}/datasets/font+gan" ] || rm -r "${run_dir}/datasets/mnist+font"
-	mkdir -p "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_test"
-	mkdir -p "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_train"
+#	echo "font+gan"
+#	[ ! -d "${run_dir}/datasets/font+gan" ] || rm -r "${run_dir}/datasets/mnist+font"
+#	mkdir -p "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_test"
+#	mkdir -p "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_train"
 	
-	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_test" \;
-	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_train" \;
-	find "${run_dir}/datasets/gan/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_test" \;
-	find "${run_dir}/datasets/gan/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_train" \;
+#	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_test" \;
+#	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_train" \;
+#	find "${run_dir}/datasets/gan/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_test" \;
+#	find "${run_dir}/datasets/gan/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/font+gan/mnist_artificial/mnist_artificial_train" \;
 
-	echo "mnist+font+gan"
-	[ ! -d "${run_dir}/datasets/mnist+font+gan" ] || rm -r "${run_dir}/datasets/mnist+font"
-	mkdir -p "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_test"
-	mkdir -p "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_train"
+#	echo "mnist+font+gan"
+#	[ ! -d "${run_dir}/datasets/mnist+font+gan" ] || rm -r "${run_dir}/datasets/mnist+font"
+#	mkdir -p "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_test"
+#	mkdir -p "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_train"
 	
-	find "${run_dir}/datasets/mnist/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_test" \;
-	find "${run_dir}/datasets/mnist/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_train" \;
-	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_test" \;
-	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_train" \;
-	find "${run_dir}/datasets/gan/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_test" \;
-	find "${run_dir}/datasets/gan/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_train" \;
+#	find "${run_dir}/datasets/mnist/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_test" \;
+#	find "${run_dir}/datasets/mnist/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_train" \;
+#	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_test" \;
+#	find "${run_dir}/datasets/font/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_train" \;
+#	find "${run_dir}/datasets/gan/mnist_artificial/mnist_artificial_test/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_test" \;
+#	find "${run_dir}/datasets/gan/mnist_artificial/mnist_artificial_train/" -type f -exec cp {} "${run_dir}/datasets/mnist+font+gan/mnist_artificial/mnist_artificial_train" \;
 
 	touch "${run_dir}/datasets_done"
 )
 
 is_done="true"
 
-for dataset_train in ${run_dir}/datasets/*; do
-	for dataset_test in ${run_dir}/datasets/*; do
+for dataset in mnist gan font mnist+gan; do
 
-		folder="${run_dir}/experiments/train=$( basename "$dataset_train" )_test=$( basename "$dataset_test" )"
-		mkdir -p "${folder}/mnist_artificial"
+	exp_dir="${run_dir}/experiments/${dataset}"
+	mkdir -p "$exp_dir"
 
-		runid=$(date | tr ' ' '_')
+	current_count=$(ls $exp_dir/*.done | wc -l)
+	if [ $current_count -lt 5 ]; then
+		is_done="false"
+	else
+		continue
+	fi
+	
+	[ ! -d "${exp_dir}/classifier/${current_count}" ] || rm -r "${exp_dir}/classifier/${current_count}"
+	mkdir -p "${exp_dir}/classifier/${current_count}"
 
-		[ -L "${folder}/train" ] || ln -Ts "$dataset_train/mnist_artificial/mnist_artificial_train" "${folder}/train" 2>/dev/null || true
-		[ -L "${folder}/test" ] || ln -Ts "$dataset_test/mnist_artificial/mnist_artificial_test" "${folder}/test" 2>/dev/null || true
+	[ -L "${exp_dir}/train" ] || ln -Ts "${run_dir}/datasets/${dataset}/mnist_artificial/mnist_artificial_train"
+	
+	for testset in mnist gan font mnist+gan; do
+		[ ! -L "${exp_dir}/test" ] || rm "${exp_dir}/test"
 
-		numruns=$(ls $folder/out.*.loss 2>/dev/null | wc -l)
-		if [ "$numruns" -lt 5 ]; then
-			is_done="false"
-			mkdir -p "${folder}/model.${runid}"
-			python3 domain_adaptation/pixel_domain_adaptation/mnist.py --data_dir "${folder}" --model_dir "${folder}/model.${runid}" --epochs_between_evals 40 | tee "${folder}/out.${runid}.log"
+		ln -Ts "${run_dir}/datasets/${testset}/mnist_artificial/mnist_artificial_test"
 
-			if grep -q "'global_step': " "${folder}/out.${runid}.log"; then
-				grep ", 'global_step': " "${folder}/out.${runid}.log" | sed -re "s/^.*'loss': ([^,]+),.*\$/\\1/" | tail -n1 > "${folder}/out.${runid}.loss"
-			fi
-		fi
+		python3 domain_adaptation/pixel_domain_adaptation/mnist.py --data_dir "${exp_dir}" --model_dir "${exp_dir}/classifier/${current_count}" --epochs_between_evals 40 | tee "${exp_dir}/out.${current_count}.log"
+
 	done
 
+	touch "${exp_dir}/${current_count}.done"
 done
+
+#			if grep -q "'global_step': " "${folder}/out.${runid}.log"; then
+#				grep ", 'global_step': " "${folder}/out.${runid}.log" | sed -re "s/^.*'loss': ([^,}]+).*\$/\\1/" | tail -n1 > "${folder}/out.${runid}.loss"
+#				[ -s "${folder}/out.${runid}.loss" ] || rm "${folder}/out.${runid}.loss"
+#			fi
 
 if $is_done; then
 	touch "${run_dir}/finished"
