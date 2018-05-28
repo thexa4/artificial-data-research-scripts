@@ -178,7 +178,7 @@ for dataset in mnist gan font mnist+gan; do
 	exp_dir="${run_dir}/experiments/${dataset}"
 	mkdir -p "$exp_dir"
 
-	current_count=$(ls $exp_dir/*.done | wc -l)
+	current_count=$(ls $exp_dir/*.done 2>/dev/null | wc -l || echo 0)
 	if [ $current_count -lt 5 ]; then
 		is_done="false"
 	else
@@ -188,12 +188,12 @@ for dataset in mnist gan font mnist+gan; do
 	[ ! -d "${exp_dir}/classifier/${current_count}" ] || rm -r "${exp_dir}/classifier/${current_count}"
 	mkdir -p "${exp_dir}/classifier/${current_count}"
 
-	[ -L "${exp_dir}/train" ] || ln -Ts "${run_dir}/datasets/${dataset}/mnist_artificial/mnist_artificial_train"
+	[ -L "${exp_dir}/train" ] || ln -Ts "${run_dir}/datasets/${dataset}/mnist_artificial/mnist_artificial_train" "${exp_dir}/train"
 	
 	for testset in mnist gan font mnist+gan; do
 		[ ! -L "${exp_dir}/test" ] || rm "${exp_dir}/test"
 
-		ln -Ts "${run_dir}/datasets/${testset}/mnist_artificial/mnist_artificial_test"
+		ln -Ts "${run_dir}/datasets/${testset}/mnist_artificial/mnist_artificial_test" "${exp_dir}/test"
 
 		python3 domain_adaptation/pixel_domain_adaptation/mnist.py --data_dir "${exp_dir}" --model_dir "${exp_dir}/classifier/${current_count}" --epochs_between_evals 40 | tee "${exp_dir}/out.${current_count}.log"
 
