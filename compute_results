@@ -1,0 +1,57 @@
+#!/bin/bash
+
+current="null"
+lastline="{}"
+
+grep -H global_step */experiments/*/*.log | while read filename rest
+do
+	if [ "z${current}" != "z${filename}" ]; then
+		experiment=$(cut -d'/' -f1 <<< $filename)
+		dataset=$(cut -d'/' -f3 <<< $filename)
+		run=$(cut -d'/' -f4 <<< $filename)
+		testset=$(cut -d'.' -f3 <<< $run)
+		iteration=$(cut -d'.' -f2 <<< $run)
+		[ "z$current" != "znull" ] && echo "{ 'source': '$current', 'experiment': '$experiment', 'dataset': '$dataset', 'testset': '$testset', 'iteration': $iteration, 'data': $lastline }" | tr "'" '"'
+		current="$filename"
+	fi
+	lastline="$rest"
+done | python3 -c "
+
+import fileinput
+import json
+import math
+
+experiments = []
+accuracy = {}
+loss = {}
+counts = {}
+samples = {}
+
+for line in fileinput.input():
+	parsed = json.loads(line)
+	
+	key = parsed['experiment'] + ', ' + parsed['dataset'] + ', ' + parsed['testset']
+	if not key in experiments:
+		experiments.append(key)
+		accuracy[key] = 0
+		loss[key] = 0
+		counts[key] = 0
+		samples[key] = []
+
+	accuracy[key] += parsed['data']['accuracy']
+	loss[key] += parsed['data']['loss']
+	counts[key] += 1
+	samples[key].append(parsed['data']['accuracy'])
+
+print('experiment, dataset, trainingset, accuracy, loss, n, stddev')
+for experiment in experiments:
+	error = 0
+	mean = accuracy[experiment] / counts[experiment]
+
+	for sample in samples[experiment]:
+		delta = sample - mean
+		print(delta)
+		error += delta * delta
+
+	print(experiment + ', ' + str(accuracy[experiment] / counts[experiment]) + ', ' + str(loss[experiment] / counts[experiment]) + ', ' + str(counts[experiment]) + ', ' + str(math.sqrt(error / (counts[experiment] - 1))))
+"

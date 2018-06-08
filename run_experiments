@@ -7,7 +7,7 @@ while ! $all; do
 
 		
 		echo $i
-		[ -f /scratch/mmaton/experiment/0.$i/done ] && continue
+		[ -f /scratch/mmaton/experiment/0.$i/finished ] && continue
 
 		all="false"
 
