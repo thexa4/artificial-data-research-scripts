@@ -12,13 +12,17 @@ font_count=$(( ( 100 - 10#$ratio ) * 550 ))
 
 echo "${mnist_count} images from MNIST, ${font_count} images from FONT"
 
-if [ -d /usr/local/cuda-9.0/ ]; then
+module use /opt/insy/modulefiles
+module load cuda/9.0
+
+#if [ -d /usr/local/cuda-8.0/ ]; then
 	echo "Using GPU"
 	. $DIR/environment/gpu/bin/activate
-else
-	echo "Using CPU"
-	. $DIR/environment/cpu/bin/activate
-fi
+#else
+#	echo "Using CPU"
+#	exit 5
+#	. $DIR/environment/cpu/bin/activate
+#fi
 
 
 set -u
@@ -53,9 +57,9 @@ function to_tfexample {
 	
 }
 
-[ ! -d "${run_dir}/source/font" ] && to_tfexample "${DIR}/data/mnist_artificial/mnist_artificial_train" "$mnist_font_train" "${DIR}/data/mnist_artificial/mnist_artificial_test" "$mnist_font_test" "${run_dir}/source/font" "$font_count"
+[ ! -d "${run_dir}/source/font" ] && echo packing font && to_tfexample "${DIR}/data/mnist_artificial/mnist_artificial_train" "$mnist_font_train" "${DIR}/data/mnist_artificial/mnist_artificial_test" "$mnist_font_test" "${run_dir}/source/font" "$font_count"
 
-[ ! -d "${run_dir}/source/mnist" ] && to_tfexample "${DIR}/data/mnist_png/train" "${DIR}/data/mnist_png/train.labels.txt" "${DIR}/data/mnist_png/test" "${DIR}/data/mnist_png/test.labels.txt" "${run_dir}/source/mnist" "$mnist_count"
+[ ! -d "${run_dir}/source/mnist" ] && echo packing mnist && to_tfexample "${DIR}/data/mnist_png/train" "${DIR}/data/mnist_png/train.labels.txt" "${DIR}/data/mnist_png/test" "${DIR}/data/mnist_png/test.labels.txt" "${run_dir}/source/mnist" "$mnist_count"
 
 
 mkdir -p "${run_dir}/datasets/gan"
@@ -67,11 +71,11 @@ pushd "${DIR}/models/research"
 trap popd EXIT
 
 export PYTHONPATH=$(pwd):$(pwd)/slim:$(pwd)/..
-export PATH=/usr/local/cuda-9.0/bin:$PATH
-export LD_LIBRARY_PATH=/home/nfs/mmaton/lib/cuda/lib64:/usr/local/cuda-9.0/lib64
+export PATH=/usr/local/cuda-8.0/bin:$PATH
+export LD_LIBRARY_PATH=/home/nfs/mmaton/lib/cuda/lib64:/usr/local/cuda-8.0/lib64:$LD_LIBRARY_PATH
 
-[ ! -f "${run_dir}/source/mnist/mnist_artificial_test.tfrecord" ] && python3 domain_adaptation/datasets/convert_mnist_artificial.py --dataset_dir "${run_dir}/datasets/mnist"
-[ ! -f "${run_dir}/source/font/mnist_artificial_test.tfrecord" ] && python3 domain_adaptation/datasets/convert_mnist_artificial.py --dataset_dir "${run_dir}/datasets/font"
+[ ! -f "${run_dir}/source/mnist/mnist_artificial_test.tfrecord" ] && echo converting mnist && python3 domain_adaptation/datasets/convert_mnist_artificial.py --dataset_dir "${run_dir}/datasets/mnist"
+[ ! -f "${run_dir}/source/font/mnist_artificial_test.tfrecord" ] && echo converting font && python3 domain_adaptation/datasets/convert_mnist_artificial.py --dataset_dir "${run_dir}/datasets/font"
 
 function cond_copy {
 	src="${1}"
@@ -100,7 +104,7 @@ cond_copy "${run_dir}/source/font/mnist_artificial_valid.tfrecord" "${run_dir}/s
 
 mkdir -p ${run_dir}/gan
 
-[ -f "${run_dir}/gan_done" ] || python3 domain_adaptation/pixel_domain_adaptation/pixelda_train.py --hparams 'num_training_examples=12000000' --dataset_dir "${run_dir}/source" --source_dataset 'mnist_artificial' --target_dataset 'mnist' --checkpoint_dir "${run_dir}/gan" --eval_dir "${run_dir}/gan" --train_log_dir "${run_dir}/gan"
+[ -f "${run_dir}/gan_done" ] || python3 domain_adaptation/pixel_domain_adaptation/pixelda_train.py --hparams 'num_training_examples=12000000,style_transfer_loss_weight=0.5' --dataset_dir "${run_dir}/source" --source_dataset 'mnist_artificial' --target_dataset 'mnist' --checkpoint_dir "${run_dir}/gan" --eval_dir "${run_dir}/gan" --train_log_dir "${run_dir}/gan"
 touch "${run_dir}/gan_done"
 
 [ -f "${run_dir}/export_done" ] || (
@@ -190,13 +194,13 @@ for dataset in mnist gan font mnist+gan mnist+font; do
 
 	[ -L "${exp_dir}/train" ] || ln -Ts "${run_dir}/datasets/${dataset}/mnist_artificial/mnist_artificial_train" "${exp_dir}/train"
 	
-	train_epochs="3" # constant 3 milion samples
+	train_epochs="1" # constant 3 milion samples
 	for testset in mnist gan font mnist+gan; do
 		[ ! -L "${exp_dir}/test" ] || rm "${exp_dir}/test"
 
 		ln -Ts "${run_dir}/datasets/${testset}/mnist_artificial/mnist_artificial_test" "${exp_dir}/test"
 
-		python3 domain_adaptation/pixel_domain_adaptation/mnist.py --data_dir "${exp_dir}" --model_dir "${exp_dir}/classifier/${current_count}" --epochs_between_evals 3 --train_epochs $train_epochs | tee "${exp_dir}/out.${current_count}.${testset}.log"
+		python3 domain_adaptation/pixel_domain_adaptation/mnist.py --data_dir "${exp_dir}" --model_dir "${exp_dir}/classifier/${current_count}" --epochs_between_evals 1 --train_epochs $train_epochs | tee "${exp_dir}/out.${current_count}.${testset}.log"
 		train_epochs="0"
 	done
 

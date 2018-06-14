@@ -50,7 +50,7 @@ for experiment in experiments:
 
 	for sample in samples[experiment]:
 		delta = sample - mean
-		print(delta)
+		#print(delta)
 		error += delta * delta
 
 	print(experiment + ', ' + str(accuracy[experiment] / counts[experiment]) + ', ' + str(loss[experiment] / counts[experiment]) + ', ' + str(counts[experiment]) + ', ' + str(math.sqrt(error / (counts[experiment] - 1))))
