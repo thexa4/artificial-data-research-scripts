@@ -46,6 +46,8 @@ for line in fileinput.input():
 print('experiment, dataset, trainingset, accuracy, loss, n, stddev')
 for experiment in experiments:
 	error = 0
+	if counts[experiment] <= 1:
+		continue
 	mean = accuracy[experiment] / counts[experiment]
 
 	for sample in samples[experiment]:

@@ -6,9 +6,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 mnist_font_train="${DIR}/data/mnist_artificial/mnist_artificial_train_labels.txt"
 mnist_font_test="${DIR}/data/mnist_artificial/mnist_artificial_test_labels.txt"
 
-ratio=${1:?No ratio set, use one of {01..99\}}
-mnist_count=$(( 10#$ratio * 550 ))
-font_count=$(( ( 100 - 10#$ratio ) * 550 ))
+ratio=${1:?No ratio set, use one of {001..999\}}
+mnist_count=$(( 10#$ratio * 55 ))
+font_count=$(( ( 1000 - 10#$ratio ) * 55 ))
 
 echo "${mnist_count} images from MNIST, ${font_count} images from FONT"
 
@@ -104,7 +104,7 @@ cond_copy "${run_dir}/source/font/mnist_artificial_valid.tfrecord" "${run_dir}/s
 
 mkdir -p ${run_dir}/gan
 
-[ -f "${run_dir}/gan_done" ] || python3 domain_adaptation/pixel_domain_adaptation/pixelda_train.py --hparams 'num_training_examples=12000000,style_transfer_loss_weight=0.5' --dataset_dir "${run_dir}/source" --source_dataset 'mnist_artificial' --target_dataset 'mnist' --checkpoint_dir "${run_dir}/gan" --eval_dir "${run_dir}/gan" --train_log_dir "${run_dir}/gan"
+[ -f "${run_dir}/gan_done" ] || python3 domain_adaptation/pixel_domain_adaptation/pixelda_train.py --hparams 'num_training_examples=12000000' --dataset_dir "${run_dir}/source" --source_dataset 'mnist_artificial' --target_dataset 'mnist' --checkpoint_dir "${run_dir}/gan" --eval_dir "${run_dir}/gan" --train_log_dir "${run_dir}/gan"
 touch "${run_dir}/gan_done"
 
 [ -f "${run_dir}/export_done" ] || (
